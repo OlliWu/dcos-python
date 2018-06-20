@@ -40,7 +40,7 @@ class marathon(object):
             for i in response['apps']:
                 appid = i['id'].strip('/')
                 apps.append(appid)
-            print ("Found the following App LIST on Marathon =", apps)
+            #print ("Found the following App LIST on Marathon =", apps)
             return apps
 
     def get_app_details(self, marathon_app):
@@ -62,35 +62,23 @@ class marathon(object):
                 app_task_dict[str(taskid)] = str(slaveId)
             return app_task_dict
 
-    def get_app_status(self, marathon_app):
+    def get_task_status(self, marathon_app):
         response = requests.get(self.uri + '/service/marathon/v2/apps/'+ marathon_app, headers=self.headers, verify=False).json()
         if (response['app']['tasks'] ==[]):
             print ('No task data on Marathon for App !', marathon_app)
             return None
         else:
-            app_instances = response['app']['instances']
-            self.appinstances = app_instances
+            self.appinstances = response['app']['instances']
+            #self.appinstances = app_instances
             print(marathon_app, "has", self.appinstances, "deployed instances")
-            
-            
+                                               
             app_status_dict={"staged":response['app']['tasksStaged'], "running":response['app']['tasksRunning'],"healthy":response['app']['tasksHealthy'],"unhealthy":response['app']['tasksUnhealthy']}
-            
+            for i in response['app']['tasks']:
+                healthcheckresults = i['healthCheckResults']
+                if healthcheckresults == []:
+                    print('Warning - HealthcheckResults empty!')
 
-
-            #for i in response['app']:
-                #stagedtasks   = i['tasksStaged']
-                #runningtasks  = i['tasksRunning']
-                #healthytasks  = i['tasksHealthy']
-                #unhealthytasks= i['tasksUnhealthy']
-                #app_status_dict["staged"] = str(i['tasksStaged'])
-
-                #app_status_dict["staged"] = str(1)
-                #print(app_status_dict)
-                #print(i)
-                
-                #app_status_dict["running"] = str(i['tasksRunning'])
-                #app_status_dict["healthy"] = str(i['tasksHealthy'])
-                #app_status_dict["unhealthy"] = str(i['tasksUnhealthy'])
+         
             return app_status_dict
 
 

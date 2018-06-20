@@ -6,6 +6,7 @@ __email__ = 'olli@csow.de'
 __status__ = 'Development'
 
 from modules import dcos
+import json
 
 with open('config.json','r') as f:
     dcos_config = json.load(f)
@@ -41,14 +42,13 @@ print('-----------------------------')
 ## Get Marathon App Details Method - List Tasks & Agents for all Marathon Apps
 if marathon_apps != None:
     for app in marathon_apps:
-        if app =='ucr-container':
-            app_details = new_marathon.get_app_details(app)
-            app_status = new_marathon.get_app_status(app)
-            print('{}{}'.format("Marathon App details = ", app_details))
-            print('-----------------------------')
-            print(app_status)
-        else:
-            pass
+        ####app_details = new_marathon.get_app_details(app)
+        app_status = new_marathon.get_task_status(app)
+        ####print('{}{}'.format("Marathon App details = ", app_details))
+        ####print('-----------------------------')
+        print(app_status)
+        print('-----------------------------')
+        
 
 
 ## new_app = new_marathon.add_app(marathon_app_json)
