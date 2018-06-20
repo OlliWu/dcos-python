@@ -7,6 +7,8 @@ __pycache__
 
 # Other files and folders
 .settings/
+.vscode/
+config.json
 
 # Executables
 

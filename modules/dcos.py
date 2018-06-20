@@ -1,7 +1,15 @@
-__author__ = 'tkraus-m'
+__author__ = 'tkraus-m, Olli'
+__credits__ = ['tkraus-m', 'https://github.com/tkrausjr/dcos-python']
+__version__ = '0.0.1'
+__maintainer__ = 'Olli'
+__email__ = 'olli@csow.de'
+__status__ = 'Development'
 
 import sys
 import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 import json
 import math
 
@@ -37,6 +45,7 @@ class marathon(object):
 
     def get_app_details(self, marathon_app):
         response = requests.get(self.uri + '/service/marathon/v2/apps/'+ marathon_app, headers=self.headers, verify=False).json()
+        # print('DEBUG - response=', response)
         if (response['app']['tasks'] ==[]):
             print ('No task data on Marathon for App !', marathon_app)
             return None
@@ -52,6 +61,38 @@ class marathon(object):
                 print ('DEBUG - taskId=', taskid +' running on '+hostid + 'which is Mesos Slave Id '+slaveId)
                 app_task_dict[str(taskid)] = str(slaveId)
             return app_task_dict
+
+    def get_app_status(self, marathon_app):
+        response = requests.get(self.uri + '/service/marathon/v2/apps/'+ marathon_app, headers=self.headers, verify=False).json()
+        if (response['app']['tasks'] ==[]):
+            print ('No task data on Marathon for App !', marathon_app)
+            return None
+        else:
+            app_instances = response['app']['instances']
+            self.appinstances = app_instances
+            print(marathon_app, "has", self.appinstances, "deployed instances")
+            
+            
+            app_status_dict={"staged":response['app']['tasksStaged'], "running":response['app']['tasksRunning'],"healthy":response['app']['tasksHealthy'],"unhealthy":response['app']['tasksUnhealthy']}
+            
+
+
+            #for i in response['app']:
+                #stagedtasks   = i['tasksStaged']
+                #runningtasks  = i['tasksRunning']
+                #healthytasks  = i['tasksHealthy']
+                #unhealthytasks= i['tasksUnhealthy']
+                #app_status_dict["staged"] = str(i['tasksStaged'])
+
+                #app_status_dict["staged"] = str(1)
+                #print(app_status_dict)
+                #print(i)
+                
+                #app_status_dict["running"] = str(i['tasksRunning'])
+                #app_status_dict["healthy"] = str(i['tasksHealthy'])
+                #app_status_dict["unhealthy"] = str(i['tasksUnhealthy'])
+            return app_status_dict
+
 
     def scale_app(self,marathon_app,autoscale_multiplier):
         target_instances_float=self.appinstances * autoscale_multiplier

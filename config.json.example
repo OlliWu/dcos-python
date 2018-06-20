@@ -1,0 +1,20 @@
+{
+    "TRU": {
+        "dcos_master": "...",
+        "dcos_userid": "...",
+        "dcos_password": "..."
+
+    },
+
+    "DEV": {
+        "dcos_master": "...",
+        "dcos_userid": "...",
+        "dcos_password": "..."
+    },
+
+    "PROD": {
+        "dcos_master": "...",
+        "dcos_userid": "...",
+        "dcos_password": "..."
+    }
+}
