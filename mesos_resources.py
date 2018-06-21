@@ -10,9 +10,14 @@ import requests
 from requests.packages.urllib3.exceptions import InsecureRequestWarning 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-dcos_master = 'https://thomaskra-elasticl-1uiia8w37pf44-1546717418.us-west-2.elb.amazonaws.com'
-userid = input('Enter the username for the DCOS cluster '+dcos_master +' : ')
-password = input('Enter the password for the DCOS cluster '+dcos_master +' : ')
+with open('config.json','r') as f:
+    dcos_config = json.load(f)
+
+
+
+dcos_master = dcos_config['TRU']['dcos_master']
+userid = dcos_config['TRU']['dcos_userid']
+password = dcos_config['TRU']['dcos_password']
 
 '''
 dcos_master = input('Enter hostname / IP for DCOS Master : ') # https://master-ip.domain.com
