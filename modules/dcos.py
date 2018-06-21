@@ -40,8 +40,9 @@ class marathon(object):
             for i in response['apps']:
                 appid = i['id'].strip('/')
                 apps.append(appid)
+                
             #print ("Found the following App LIST on Marathon =", apps)
-            return apps
+            return sorted(apps)
 
     def get_app_details(self, marathon_app):
         response = requests.get(self.uri + '/service/marathon/v2/apps/'+ marathon_app, headers=self.headers, verify=False).json()

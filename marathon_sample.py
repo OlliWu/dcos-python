@@ -31,6 +31,8 @@ else:
     exit(1)
 print('-----------------------------')
 
+
+
 ## Initialize new Marathon Instance of Marathon Class
 new_marathon = dcos.marathon(dcos_master,dcos_token)
 
