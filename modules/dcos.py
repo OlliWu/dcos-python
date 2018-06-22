@@ -72,12 +72,18 @@ class marathon(object):
             self.appinstances = response['app']['instances']
             #self.appinstances = app_instances
             print(marathon_app, "has", self.appinstances, "deployed instances")
-                                               
+            
             app_status_dict={"staged":response['app']['tasksStaged'], "running":response['app']['tasksRunning'],"healthy":response['app']['tasksHealthy'],"unhealthy":response['app']['tasksUnhealthy']}
+            app_status_dict["tasks"] = self.appinstances
+
             for i in response['app']['tasks']:
                 healthcheckresults = i['healthCheckResults']
+                
+                #debug - print HC
                 if healthcheckresults == []:
                     print('Warning - HealthcheckResults empty!')
+                else:
+                    print(healthcheckresults)
 
          
             return app_status_dict

@@ -6,7 +6,11 @@ __email__ = 'olli@csow.de'
 __status__ = 'Development'
 
 from modules import dcos
+from prettytable import PrettyTable
+
+
 import json
+
 
 with open('config.json','r') as f:
     dcos_config = json.load(f)
@@ -41,17 +45,36 @@ marathon_apps = new_marathon.get_all_apps()
 print ("The following apps exist in Marathon...", marathon_apps)
 print('-----------------------------')
 
+# Create ascii table
+apptable = PrettyTable(["App","Tasks", "Health"])
+#apptable.field_names = ["App","Tasks", "Health"]
+
 ## Get Marathon App Details Method - List Tasks & Agents for all Marathon Apps
 if marathon_apps != None:
     for app in marathon_apps:
         ####app_details = new_marathon.get_app_details(app)
         app_status = new_marathon.get_task_status(app)
+        
+        try:
+            #print (app_status['tasks'])
+            apptable.add_row([app,app_status['tasks'],"X"])
+        except TypeError:
+            #print ("Keine Tasks")
+            apptable.add_row([app,0,"X"])
+
+        
+        
+        
         ####print('{}{}'.format("Marathon App details = ", app_details))
         ####print('-----------------------------')
         print(app_status)
-        print('-----------------------------')
+    apptable.align["App"] = "l"
+    print(apptable)
         
+
+
 
 
 ## new_app = new_marathon.add_app(marathon_app_json)
 ## print('Marathon App ID is ' + new_app)
+
