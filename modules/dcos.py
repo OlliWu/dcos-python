@@ -7,59 +7,64 @@ __status__ = 'Development'
 
 import sys
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-
 import json
 import math
 
-def dcos_auth_login(dcos_master,userid,password):
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+
+
+def dcos_auth_login(dcos_master, userid, password):
     '''
     Will login to the DCOS ACS Service and RETURN A JWT TOKEN for subsequent API requests to Marathon, Mesos, etc
     '''
     rawdata = {'uid' : userid, 'password' : password}
-    login_headers={'Content-type': 'application/json'}
+    login_headers = {'Content-type': 'application/json'}
     response = requests.post(dcos_master + '/acs/api/v1/auth/login', headers=login_headers, data=json.dumps(rawdata),verify=False).json()
-    auth_token=response['token']
+    auth_token = response['token']
     return auth_token
 
 class marathon(object):
-    def __init__(self, dcos_master,dcos_auth_token):
+    def __init__(self, dcos_master, dcos_auth_token):
         self.name = dcos_master
-        self.uri=(dcos_master)
-        self.headers={'Authorization': 'token='+dcos_auth_token, 'Content-type': 'application/json'}
+        self.uri = (dcos_master)
+        self.headers = {'Authorization': 'token='+dcos_auth_token, 'Content-type': 'application/json'}
         self.apps = self.get_all_apps()
 
     def get_all_apps(self):
         response = requests.get(self.uri + '/service/marathon/v2/apps', headers=self.headers, verify=False).json()
         if response['apps'] ==[]:
-            print ("No Apps found on Marathon")
+            print("No Apps found on Marathon")
             return None
         else:
-            apps=[]
+            apps = []
             for i in response['apps']:
                 appid = i['id'].strip('/')
                 apps.append(appid)
                 
-            #print ("Found the following App LIST on Marathon =", apps)
+            # print ("Found the following App LIST on Marathon =", apps)
             return sorted(apps)
 
     def get_app_details(self, marathon_app):
-        response = requests.get(self.uri + '/service/marathon/v2/apps/'+ marathon_app, headers=self.headers, verify=False).json()
+        response = requests.get(self.uri + '/service/marathon/v2/apps/'
+                                         + marathon_app, headers=self.headers,
+                                           verify=False).json()
+
         # print('DEBUG - response=', response)
         if (response['app']['tasks'] ==[]):
-            print ('No task data on Marathon for App !', marathon_app)
+            print('No task data on Marathon for App !', marathon_app)
             return None
         else:
             app_instances = response['app']['instances']
             self.appinstances = app_instances
             print(marathon_app, "has", self.appinstances, "deployed instances")
-            app_task_dict={}
+            app_task_dict = {}
             for i in response['app']['tasks']:
                 taskid = i['id']
                 hostid = i['host']
-                slaveId=i['slaveId']
-                print ('DEBUG - taskId=', taskid +' running on '+hostid + 'which is Mesos Slave Id '+slaveId)
+                slaveId = i['slaveId']
+                print('DEBUG - taskId=', taskid +' running on '+hostid + 'which is Mesos Slave Id '+slaveId)
                 app_task_dict[str(taskid)] = str(slaveId)
             return app_task_dict
 
@@ -73,7 +78,10 @@ class marathon(object):
             #self.appinstances = app_instances
             print(marathon_app, "has", self.appinstances, "deployed instances")
             
-            app_status_dict={"staged":response['app']['tasksStaged'], "running":response['app']['tasksRunning'],"healthy":response['app']['tasksHealthy'],"unhealthy":response['app']['tasksUnhealthy']}
+            app_status_dict = {"staged": response['app']['tasksStaged'],
+                               "running": response['app']['tasksRunning'],
+                               "healthy": response['app']['tasksHealthy'],
+                               "unhealthy": response['app']['tasksUnhealthy']}
             app_status_dict["tasks"] = self.appinstances
 
             for i in response['app']['tasks']:
@@ -83,10 +91,9 @@ class marathon(object):
                 if healthcheckresults == []:
                     print('Warning - HealthcheckResults empty!')
                 else:
-                    print(healthcheckresults)
-
-         
-            return app_status_dict
+                    print(healthcheckresults)     
+    
+        return app_status_dict
 
 
     def scale_app(self,marathon_app,autoscale_multiplier):
